@@ -1,0 +1,59 @@
+global Event = @record {
+  timeSinceFired: cint,
+  hasFired: boolean,
+  name: string
+}
+
+global EventManager = @record {
+  eventIndex: cint,
+  events: [20]Event
+}
+
+function Event:Fire()
+  self.hasFired = true
+  self.timeSinceFired = self.timeSinceFired + 1
+end
+
+function Event:Cleanup()
+  self.hasFired = false
+  self.timeSinceFired = 0
+end
+
+function EventManager:AddEvent(event: Event)
+  self.events[self.eventIndex] = event
+  self.eventIndex = self.eventIndex + 1
+end
+
+function EventManager:FireEvent(name: string)
+ for i: usize, event: *Event in mipairs(self.events) do
+  if event.name == name then
+    event:Fire()
+  end
+ end
+end
+
+function EventManager:IsEventFired(name: string): boolean
+  for i:usize, event: Event in ipairs(self.events) do
+    if event.name == name then
+      return event.hasFired
+    end
+  end
+  
+  return false
+end
+
+function EventManager:RenameEvent(oldName: string, newName: string)
+  for i: usize, event: *Event in mipairs(self.events) do
+    if event.name == oldName then
+      event.name = newName
+    end
+  end
+end
+
+function EventManager:CleanupFired()
+  for i: usize, event: *Event in mipairs(self.events) do
+    if event.hasFired then
+      event:Cleanup()
+    end
+  end
+end
